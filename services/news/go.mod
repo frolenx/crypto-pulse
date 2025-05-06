@@ -4,6 +4,7 @@ go 1.24.1
 
 require (
 	github.com/PuerkitoBio/goquery v1.10.3
+	github.com/crypto-pulse/sdk v0.0.0-00010101000000-000000000000
 	github.com/gin-gonic/gin v1.10.0
 	golang.org/x/sync v0.14.0
 )
@@ -37,3 +38,5 @@ require (
 	google.golang.org/protobuf v1.34.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/crypto-pulse/sdk => ../../sdk
