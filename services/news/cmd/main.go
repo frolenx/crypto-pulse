@@ -2,8 +2,9 @@ package main
 
 import (
 	"context"
-	"crypto-pulse/sdk"
 	"fmt"
+	"github.com/crypto-pulse/news/internal/route"
+	"github.com/crypto-pulse/sdk"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/sync/errgroup"
 	"os"
@@ -18,9 +19,7 @@ func main() {
 	g, gCtx := errgroup.WithContext(ctx)
 
 	router := gin.Default()
-	router.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{})
-	})
+	route.RegisterRoutes(router)
 
 	srv := sdk.NewServer(ctx, "8082", router)
 

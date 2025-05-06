@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"crypto-pulse/sdk"
 	"fmt"
+	"github.com/crypto-pulse/sdk"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/sync/errgroup"
 	"os"
