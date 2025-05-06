@@ -1,0 +1,9 @@
+services:
+  news-service:
+    build:
+      context: ../
+      dockerfile: services/news/Dockerfile
+    ports:
+      - "8082:8082"
+    env_file:
+      - ../services/news/.env
