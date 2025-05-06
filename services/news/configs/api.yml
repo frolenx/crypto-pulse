@@ -1,0 +1,18 @@
+api:
+  host: cryptopanic.com
+  endpoint: /api/v1/posts/
+  token: ${API_TOKEN}
+  filter:
+    kind: news
+    currencies:
+      - BTC
+      - ETH
+      - SOL
+      - XRP
+      - TON
+      - ARB
+      - WLD
+      - L3
+      - TRUMP
+      - HPOS10I
+      - SUI

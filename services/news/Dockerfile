@@ -18,5 +18,6 @@ FROM alpine:latest
 WORKDIR /root
 
 COPY --from=builder /build/news/news-service .
+COPY --from=builder /build/news/configs ./configs
 
 CMD ["./news-service"]

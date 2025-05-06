@@ -4,21 +4,32 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/PuerkitoBio/goquery"
+	"github.com/crypto-pulse/news/internal/config"
 	"github.com/crypto-pulse/news/internal/model"
 	"io"
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 )
 
 func FetchNews() ([]*model.News, error) {
-	apiToken := os.Getenv("API_TOKEN")
-	if apiToken == "" {
+	configPath := os.Getenv("CONFIG_PATH")
+	if configPath == "" {
+		return nil, errors.New("CONFIG_PATH environment variable not set")
+	}
+
+	cfg, err := config.LoadConfig(configPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if cfg.Api.Token == "" {
 		return nil, errors.New("API_TOKEN environment variable not set")
 	}
 
-	authToken := buildUrl(apiToken)
+	authToken := buildUrl(cfg.Api)
 
 	resp, err := http.Get(authToken)
 	if err != nil {
@@ -45,7 +56,7 @@ func FetchNews() ([]*model.News, error) {
 			return nil, err
 		}
 
-		if time.Since(t) < 30*time.Minute {
+		if time.Since(t) < 15*time.Minute {
 			desc, err := extractDescription(news.Url)
 			if err != nil {
 				return nil, err
@@ -59,17 +70,18 @@ func FetchNews() ([]*model.News, error) {
 	return filtered, nil
 }
 
-func buildUrl(authToken string) string {
+func buildUrl(cfg config.Api) string {
 	apiUrl := url.URL{
 		Scheme: "https",
-		Host:   "cryptopanic.com",
+		Host:   cfg.Host,
 	}
 
-	apiUrl.Path = "/api/v1/posts/"
+	apiUrl.Path = cfg.Endpoint
 
 	queryParams := apiUrl.Query()
-	queryParams.Set("access_token", authToken)
-	queryParams.Set("public", "true")
+	queryParams.Set("auth_token", cfg.Token)
+	queryParams.Set("kind", cfg.Filter.Kind)
+	queryParams.Set("currencies", strings.Join(cfg.Filter.Currencies, ","))
 	apiUrl.RawQuery = queryParams.Encode()
 
 	return apiUrl.String()
