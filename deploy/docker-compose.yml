@@ -7,3 +7,17 @@ services:
       - "8082:8082"
     env_file:
       - ../services/news/.env
+    depends_on:
+      - redis
+    environment:
+      REDIS_ADDR: redis:6379
+  redis:
+    image: redis:8-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+
+volumes:
+  redis-data:

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/crypto-pulse/news/internal/integration/redis"
 	"github.com/crypto-pulse/news/internal/route"
 	"github.com/crypto-pulse/sdk"
 	"github.com/gin-gonic/gin"
@@ -18,8 +19,13 @@ func main() {
 
 	g, gCtx := errgroup.WithContext(ctx)
 
+	rdb, err := redis.NewClient()
+	if err != nil {
+		panic(err)
+	}
+
 	router := gin.Default()
-	route.RegisterRoutes(router)
+	route.RegisterRoutes(router, rdb)
 
 	srv := sdk.NewServer(ctx, "8082", router)
 
