@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/crypto-pulse/news/internal/integration/crypto_panic"
+	"github.com/crypto-pulse/news/internal/integration/kafka/producer"
 	"github.com/crypto-pulse/news/internal/integration/redis"
 	"github.com/crypto-pulse/news/internal/route"
 	"github.com/crypto-pulse/sdk"
@@ -10,22 +12,39 @@ import (
 	"golang.org/x/sync/errgroup"
 	"os"
 	"os/signal"
+	"strconv"
+	"strings"
 	"syscall"
 )
 
+// TODO need to check all required env variables
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	g, gCtx := errgroup.WithContext(ctx)
 
+	cryptoPanicApi := crypto_panic.NewClient()
+
 	rdb, err := redis.NewClient()
 	if err != nil {
 		panic(err)
 	}
 
+	brokers := strings.Split(os.Getenv("KAFKA_BROKERS"), ",")
+	topic := os.Getenv("KAFKA_TOPIC")
+	maxRetries, err := strconv.Atoi(os.Getenv("KAFKA_MAX_RETRIES"))
+	if err != nil {
+		panic(err)
+	}
+
+	newProducer, err := producer.NewProducer(brokers, topic, maxRetries)
+	if err != nil {
+		panic(err)
+	}
+
 	router := gin.Default()
-	route.RegisterRoutes(router, rdb)
+	route.RegisterRoutes(router, cryptoPanicApi, rdb, newProducer)
 
 	srv := sdk.NewServer(ctx, "8082", router)
 

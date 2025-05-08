@@ -14,7 +14,14 @@ import (
 	"time"
 )
 
-func FetchNews() ([]*model.News, error) {
+type Client struct{}
+
+func NewClient() *Client {
+	return &Client{}
+}
+
+// TODO need to move config load to main.go
+func (c *Client) FetchNews() ([]*model.News, error) {
 	configPath := os.Getenv("CONFIG_PATH")
 	if configPath == "" {
 		return nil, errors.New("CONFIG_PATH environment variable not set")
